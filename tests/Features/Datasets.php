@@ -251,20 +251,16 @@ it('can resolve a dataset after the test case is available with shared array set
 
 it('resolves a potential bound dataset logically', function ($foo, $bar) {
     expect($foo)->toBe('foo');
-    expect($bar())->toBe('bar');
+    expect($bar)->toBe('bar');
 })->with([
-    ['foo', function () {
-        return 'bar';
-    }], // This should be passed as a closure because we've passed multiple arguments
+    ['foo', fn () => 'bar'],
 ]);
 
 it('resolves a potential bound dataset logically even when the closure comes first', function ($foo, $bar) {
-    expect($foo())->toBe('foo');
+    expect($foo)->toBe('foo');
     expect($bar)->toBe('bar');
 })->with([
-    [function () {
-        return 'foo';
-    }, 'bar'], // This should be passed as a closure because we've passed multiple arguments
+    [fn () => 'foo', 'bar'], // This should be passed as a closure because we've passed multiple arguments
 ]);
 
 it('will not resolve a closure if it is type hinted as a closure', function (Closure $data) {
@@ -297,10 +293,8 @@ it('can correctly resolve a bound dataset that returns an array', function (arra
     },
 ]);
 
-it('can correctly resolve a bound dataset that returns an array but wants to be spread', function (string $foo, string $bar, string $baz) {
-    expect([$foo, $bar, $baz])->toBe(['foo', 'bar', 'baz']);
+it('can correctly resolve multiple bound datasets', function (string $foo, Closure $bar, string $baz) {
+    expect([$foo, $bar(), $baz])->toBe(['foo', 'bar', 'baz']);
 })->with([
-    function () {
-        return ['foo', 'bar', 'baz'];
-    },
+    [fn () => 'foo', fn () => 'bar', 'baz'],
 ]);

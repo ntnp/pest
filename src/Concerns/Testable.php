@@ -223,30 +223,20 @@ trait Testable
 
         self::$__description = $this->dataName() ? $method->description.' with '.$this->dataName() : $method->description;
 
-        if (count($arguments) !== 1) {
-            return $arguments;
-        }
-
-        if (! $arguments[0] instanceof Closure) {
-            return $arguments;
-        }
-
         $underlyingTest = Reflection::getFunctionVariable($this->__test, 'closure');
         $testParameterTypes = array_values(Reflection::getFunctionArguments($underlyingTest));
 
-        if (in_array($testParameterTypes[0], [\Closure::class, 'callable'])) {
-            return $arguments;
-        }
+        return array_map(function (mixed $argument, int $index) use ($testParameterTypes) {
+            if (! $argument instanceof Closure) {
+                return $argument;
+            }
 
-        $boundDatasetResult = $this->__callClosure($arguments[0], []);
-        if (count($testParameterTypes) === 1) {
-            return [$boundDatasetResult];
-        }
-        if (! is_array($boundDatasetResult)) {
-            return [$boundDatasetResult];
-        }
+            if (in_array($testParameterTypes[$index], [Closure::class, 'callable'])) {
+                return $argument;
+            }
 
-        return array_values($boundDatasetResult);
+            return $this->__callClosure($argument, []);
+        }, $arguments, array_keys($arguments));
     }
 
     /**
