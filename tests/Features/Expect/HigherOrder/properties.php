@@ -64,6 +64,16 @@ it('works with nested properties', function () {
         ->posts->toBeArray()->toHaveCount(2);
 });
 
+it('works with nested properties via dot notation', function () {
+    expect(new HasProperties())
+        ->nested->toBeArray()
+        ->{'nested.foo'}->toBeArray()
+        ->{'nested.foo.bar'}->toBeString()->toEqual('baz')
+        ->posts->toBeArray()
+        ->{'posts.0.title'}->toBeString()->toEqual('Foo')
+        ->{"posts.1.is_published"}->toBeTrue();
+});
+
 it('works with higher order tests')
     ->expect(new HasProperties())
     ->nested->foo->bar->toBeString()->toEqual('baz')
