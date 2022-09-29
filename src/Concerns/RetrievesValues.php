@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Pest\Concerns;
 
+use Pest\Support\Arr;
+
 /**
  * @internal
  */
@@ -22,7 +24,12 @@ trait RetrievesValues
     private function retrieve(string $key, $value, $default = null)
     {
         if (is_array($value)) {
-            return $value[$key] ?? $default;
+            /**
+             * @var TRetrievableValue|null
+             *
+             * @phpstan-ignore-next-line
+             */
+            return Arr::get($value, $key, $default);
         }
 
         // @phpstan-ignore-next-line
