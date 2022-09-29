@@ -39,7 +39,7 @@ final class Arr
     /**
      * @param array<mixed> $array
      * @param string|int   $key
-     * @param null         $default
+     * @param mixed        $default
      *
      * @return array|mixed|null
      */
