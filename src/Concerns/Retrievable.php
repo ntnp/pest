@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Pest\Concerns;
 
+use Pest\Support\Arr;
+
 /**
  * @internal
  */
@@ -22,11 +24,17 @@ trait Retrievable
      */
     private function retrieve(string $key, mixed $value, mixed $default = null): mixed
     {
-        if (is_array($value)) {
-            return $value[$key] ?? $default;
+        foreach (explode('.', $key) as $segment) {
+            if (is_array($value)) {
+                $value = Arr::get($value, $segment, $default);
+            } elseif (is_object($value)) {
+                // @phpstan-ignore-next-line
+                $value = $value->$segment ?? $default;
+            } else {
+                return $default;
+            }
         }
 
-        // @phpstan-ignore-next-line
-        return $value->$key ?? $default;
+        return $value;
     }
 }
