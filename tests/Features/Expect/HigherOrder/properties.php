@@ -74,6 +74,25 @@ it('works with nested properties', function () {
         ->posts->toBeArray()->toHaveCount(2);
 });
 
+it('works with nested properties via dot notation', function () {
+    expect(new HasProperties())
+        ->nested->toBeArray()
+        ->{'nested.foo'}->toBeArray()
+        ->{'nested.foo.bar'}->toBeString()->toEqual('baz')
+        ->posts->toBeArray()
+        ->{'posts.0.title'}->toBeString()->toEqual('Foo')
+        ->{'posts.1.is_published'}->toBeTrue();
+});
+
+it('works with magic properties via dot notation', function () {
+    expect(new HasMagicProperties())
+        ->unknown->toBeNull()
+        ->nested->toBeArray()
+        ->{'nested.foo'}->toBeArray()
+        ->{'nested.unknown'}->toBeNull()
+        ->{'nested.foo.bar'}->toBeString()->toEqual('baz');
+});
+
 it('works with higher order tests')
     ->expect(new HasProperties())
     ->nested->foo->bar->toBeString()->toEqual('baz')
@@ -97,4 +116,24 @@ class HasProperties
     public $nested = [
         'foo' => ['bar' => 'baz'],
     ];
+}
+
+class HasMagicProperties
+{
+    public $data = [
+        'one' => 1,
+        'two' => 2,
+        'nested' => [
+            'foo' => ['bar' => 'baz'],
+        ],
+    ];
+
+    public function __get(string $name)
+    {
+        if (array_key_exists($name, $this->data)) {
+            return $this->data[$name];
+        }
+
+        return null;
+    }
 }
